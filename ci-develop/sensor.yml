@@ -38,6 +38,9 @@ spec:
                     - name: repository_url
                       # the value will get overridden by event payload from event-dep
                       value: example.com
+                    - name: commit_sha
+                      # the value will get overridden by event payload from event-dep
+                      value: 1234567
                 templates:
                   - name: main
                     steps:
@@ -70,7 +73,7 @@ spec:
                         - "--build-arg=REACT_APP_USER_API_URL"
                         - "--build-arg=REACT_APP_AGGREGATOR_API_URL"
                         # - "--destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest" # if you are using a private docker registry
-                        - "--destination=chromato99/{{workflow.parameters.repository_name}}:latest"
+                        - "--destination=chromato99/{{workflow.parameters.repository_name}}:develop-{{workflow.parameters.commit_sha}}"
                       env:
                         - name: REACT_APP_USER_API_URL
                           valueFrom:
@@ -139,6 +142,10 @@ spec:
                 dependencyName: event-dep
                 dataKey: body.repository.clone_url
               dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: event-dep
+                dataTemplate: "{{ .Input.body.after | substr 0 7 }}"
+              dest: spec.arguments.parameters.2.value
             - src:
                 dependencyName: event-dep
                 dataTemplate: "{{ .Input.body.repository.name }}-"
