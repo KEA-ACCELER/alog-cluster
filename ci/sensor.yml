@@ -70,20 +70,21 @@ spec:
                         # - "--insecure-registry=<private docker-registry>"" # if you are using a private docker registry as insecure (http)
                         - "--dockerfile=Dockerfile"
                         - "--context=."
-                        - "--build-arg=REACT_APP_USER_API_URL"
-                        - "--build-arg=REACT_APP_AGGREGATOR_API_URL"
+                        - "--build-arg=REACT_APP_CLIENT_ID"
+                        - "--build-arg=REACT_APP_ALOG_API_URL"
                         # - "--destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest" # if you are using a private docker registry
                         - "--destination=chromato99/{{workflow.parameters.repository_name}}:develop-{{workflow.parameters.commit_sha}}"
+                        - "--destination=chromato99/{{workflow.parameters.repository_name}}:develop"
                       env:
-                        - name: REACT_APP_USER_API_URL
+                        - name: REACT_APP_CLIENT_ID
                           valueFrom:
                             secretKeyRef:
-                              key: REACT_APP_USER_API_URL
+                              key: REACT_APP_CLIENT_ID
                               name: alog-secret
-                        - name: REACT_APP_SURVEY_API_URL
+                        - name: REACT_APP_ALOG_API_URL
                           valueFrom:
                             secretKeyRef:
-                              key: REACT_APP_AGGREGATOR_API_URL
+                              key: REACT_APP_ALOG_API_URL
                               name: alog-secret
                       volumeMounts:
                         - name: kaniko-secret
@@ -148,7 +149,7 @@ spec:
               dest: spec.arguments.parameters.2.value
             - src:
                 dependencyName: event-dep
-                dataTemplate: "{{ .Input.body.repository.name }}-"
+                dataTemplate: "{{ .Input.body.repository.name }}-develop-"
               dest: metadata.generateName
               operation: append
       retryStrategy:
