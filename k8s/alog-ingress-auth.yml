@@ -55,3 +55,10 @@ spec:
                 name: alog-service-file
                 port:
                   number: 8086
+          - path: /api/noti
+            pathType: Prefix
+            backend:
+              service:
+                name: alog-service-notification
+                port:
+                  number: 8088

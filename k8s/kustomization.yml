@@ -12,6 +12,7 @@ resources:
 - service-release.yml
 - service-aggr.yml
 - service-file.yml
+- service-notification.yml
 
 # if you want to use private docker registry or specific image tag, uncomment this snippet and change the name
 # images:
@@ -31,6 +32,8 @@ resources:
 #     newName: <private docker registry>/alog-service-aggr:<tag>
 #   - name: chromato99/alog-service-file:latest
 #     newName: <private docker registry>/alog-service-file:<tag>
+#   - name: chromato99/alog-service-notification:latest
+#     newName: <private docker registry>/alog-service-notification:<tag>
 #   - name: mysql:lastest
 #     newName: <private docker registry>/mysql:<tag>
 #   - name: mongo:lastest

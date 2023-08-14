@@ -1,0 +1,277 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alog-service-noti
+  labels:
+    app: alog
+    tier: service-noti
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: alog
+      tier: service-noti
+  template:
+    metadata:
+      labels:
+        app: alog
+        tier: service-noti
+    spec:
+      containers:
+      - name: alog-service-noti
+        image: chromato99/alog-service-notification:latest
+        env:
+          - name: DB_HOST
+            value: alog-noti-db-1
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: alog-secret
+                key: DB_USERNAME
+                optional: false
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: alog-secret
+                key: DB_PASSWORD
+                optional: false
+          - name: HOST_PORT
+            value: "8088"
+        ports:
+        - containerPort: 8088
+          name: noti-http
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alog-service-noti
+spec:
+  type: NodePort
+  ports:
+  - name : noti-port
+    port: 8088
+    targetPort: noti-http
+    nodePort: 30088
+  selector:
+    app: alog
+    tier: service-noti
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: noti-db-pvc-1
+spec:
+  storageClassName: ceph-block
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alog-noti-db-1
+  labels:
+    app: alog
+    tier: noti-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alog
+      tier: noti-db
+  template:
+    metadata:
+      labels:
+        app: alog
+        tier: noti-db
+    spec:
+      containers:
+      - name: alog-noti-db
+        image: scylladb/scylla
+        args: ["--seeds", "alog-noti-db-1"]
+        env:
+          - name: SCYLLA_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: alog-secret
+                key: DB_USERNAME
+                optional: false
+          - name: SCYLLA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: alog-secret
+                key: DB_PASSWORD
+                optional: false
+        ports:
+        - containerPort: 9042
+        volumeMounts:
+            - name: scylla-persistent-storage
+              mountPath: /var/lib/scylla
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: scylla-persistent-storage
+          persistentVolumeClaim:
+            claimName: noti-db-pvc-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alog-noti-db-1
+spec:
+  ports:
+  - name : noti-db-port
+    port: 9042
+    targetPort: 9042
+  selector:
+    app: alog
+    tier: noti-db
+---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: noti-db-pvc-2
+# spec:
+#   storageClassName: ceph-block
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 10Gi
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: alog-noti-db-2
+#   labels:
+#     app: alog
+#     tier: noti-db
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: alog
+#       tier: noti-db
+#   template:
+#     metadata:
+#       labels:
+#         app: alog
+#         tier: noti-db
+#     spec:
+#       containers:
+#       - name: alog-noti-db
+#         image: scylladb/scylla
+#         env:
+#           - name: SCYLLA_USERNAME
+#             valueFrom:
+#               secretKeyRef:
+#                 name: alog-secret
+#                 key: DB_USERNAME
+#                 optional: false
+#           - name: SCYLLA_PASSWORD
+#             valueFrom:
+#               secretKeyRef:
+#                 name: alog-secret
+#                 key: DB_PASSWORD
+#                 optional: false
+#         ports:
+#         - containerPort: 9042
+#         volumeMounts:
+#             - name: scylla-persistent-storage
+#               mountPath: /var/lib/scylla
+#       imagePullSecrets:
+#         - name: regcred
+#       volumes:
+#         - name: scylla-persistent-storage
+#           persistentVolumeClaim:
+#             claimName: noti-db-pvc-2
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: alog-noti-db-2
+# spec:
+#   ports:
+#   - name : noti-db-port
+#     port: 9042
+#     targetPort: 9042
+#   selector:
+#     app: alog
+#     tier: noti-db
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: noti-db-pvc-3
+# spec:
+#   storageClassName: ceph-block
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 10Gi
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: alog-noti-db-3
+#   labels:
+#     app: alog
+#     tier: noti-db
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: alog
+#       tier: noti-db
+#   template:
+#     metadata:
+#       labels:
+#         app: alog
+#         tier: noti-db
+#     spec:
+#       containers:
+#       - name: alog-noti-db
+#         image: scylladb/scylla
+#         env:
+#           - name: SCYLLA_USERNAME
+#             valueFrom:
+#               secretKeyRef:
+#                 name: alog-secret
+#                 key: DB_USERNAME
+#                 optional: false
+#           - name: SCYLLA_PASSWORD
+#             valueFrom:
+#               secretKeyRef:
+#                 name: alog-secret
+#                 key: DB_PASSWORD
+#                 optional: false
+#         ports:
+#         - containerPort: 9042
+#         volumeMounts:
+#             - name: scylla-persistent-storage
+#               mountPath: /var/lib/scylla
+#       imagePullSecrets:
+#         - name: regcred
+#       volumes:
+#         - name: scylla-persistent-storage
+#           persistentVolumeClaim:
+#             claimName: noti-db-pvc-3
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: alog-noti-db-3
+# spec:
+#   ports:
+#   - name : noti-db-port
+#     port: 9042
+#     targetPort: 9042
+#   selector:
+#     app: alog
+#     tier: noti-db
+# ---

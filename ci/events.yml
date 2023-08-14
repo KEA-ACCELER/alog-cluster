@@ -50,6 +50,7 @@ spec:
             - alog-service-release
             - alog-service-auth
             - alog-service-file
+            - alog-service-notification
       # Github application auth. Instead of using personal token `apiToken` use app PEM            
       # githubApp:
       #   privateKey:
