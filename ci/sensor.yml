@@ -71,6 +71,7 @@ spec:
                         - "--dockerfile=Dockerfile"
                         - "--context=."
                         - "--build-arg=REACT_APP_CLIENT_ID"
+                        - "--build-arg=REACT_APP_CLIENT_SECRET"
                         - "--build-arg=REACT_APP_ALOG_API_URL"
                         - "--build-arg=REACT_APP_YORKIE_API_URL"
                         - "--build-arg=REACT_APP_YORKIE_API_KEY"
@@ -82,6 +83,11 @@ spec:
                           valueFrom:
                             secretKeyRef:
                               key: REACT_APP_CLIENT_ID
+                              name: alog-secret
+                        - name: REACT_APP_CLIENT_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: REACT_APP_CLIENT_SECRET
                               name: alog-secret
                         - name: REACT_APP_ALOG_API_URL
                           valueFrom:
